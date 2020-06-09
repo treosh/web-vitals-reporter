@@ -1,0 +1,34 @@
+{
+  "name": "web-vitals-reporter",
+  "version": "0.1.0",
+  "description": "...",
+  "repository": "treosh/web-vitals-reporter",
+  "bugs": "https://github.com/treosh/web-vitals-reporter/issues",
+  "license": "MIT",
+  "sideEffects": false,
+  "types": "types/index.d.js",
+  "main": "src/index.js",
+  "files": [
+    "src"
+  ],
+  "keywords": [
+    "web vitals"
+  ],
+  "scripts": {
+    "test": "prettier -c src README.md && tsc -p . && ava"
+  },
+  "ava": {
+    "require": [
+      "esm"
+    ],
+    "files": [
+      "test/*.js"
+    ]
+  },
+  "devDependencies": {
+    "ava": "^3.8.2",
+    "esm": "^3.2.25",
+    "prettier": "^2.0.5",
+    "typescript": "^3.9.5"
+  }
+}
