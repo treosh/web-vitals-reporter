@@ -6,19 +6,26 @@
   "bugs": "https://github.com/treosh/web-vitals-reporter/issues",
   "license": "MIT",
   "sideEffects": false,
-  "types": "types/index.d.js",
-  "main": "src/index.js",
+  "source": "src/index.js",
+  "module": "src/index.js",
+  "types": "dist/web-vitals-reporter.d.ts",
+  "main": "dist/web-vitals-reporter.js",
   "files": [
+    "dist",
     "src"
   ],
   "scripts": {
-    "test": "prettier -c src README.md && tsc -p ."
+    "build": "microbundle build --no-sourcemap --format=cjs && yarn build:tsc",
+    "build:tsc": "tsc --declaration --noEmit false --outDir dist/ --allowJs src/index.js && rm dist/index.js && mv dist/index.d.ts dist/web-vitals-reporter.d.ts",
+    "test": "prettier -c src README.md && tsc -p .",
+    "prepack": "yarn build"
   },
   "dependencies": {
     "web-vitals": "^0.2.2"
   },
   "devDependencies": {
     "@size-limit/preset-small-lib": "^4.5.0",
+    "microbundle": "^0.12.0",
     "prettier": "^2.0.5",
     "size-limit": "^4.5.0",
     "typescript": "^3.9.5"
