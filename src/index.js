@@ -1,4 +1,9 @@
 import { onHidden } from 'web-vitals/dist/lib/onHidden'
+import { generateUniqueID } from 'web-vitals/dist/lib/generateUniqueID'
+
+/** @typedef {Object<string,any>} Result */
+/** @typedef {import('web-vitals').Metric | Object<string,any>} Metric */
+/** @typedef {{ effectiveType: 'slow-2g' | '2g' | '3g' | '4g', rtt: number, downlink: number }} NetworkInformation */
 
 /**
  * Create Web Vitals API reporter, that accepts `Metric` values and sends it to `url`
@@ -8,29 +13,19 @@ import { onHidden } from 'web-vitals/dist/lib/onHidden'
  * Use `onSend` to implement a custom logic.
  *
  * @param {string} url
- * @param {{ initial?: object, mapMetric?: (metric: import('web-vitals').Metric) => object, beforeSend?: function, onSend?: (url: string, values: object) => any }} [opts]
- * @return {(metric: import('web-vitals').Metric) => void}
+ * @param {{ initial?: object, mapMetric?: (metric: Metric, result: Result) => object, onSend?: (url: string, values: Result) => any }} [opts]
+ * @return {(metric: Metric) => void}
  */
 
 export function createApiReporter(url, opts = {}) {
   let isSent = false
-  let result = {
-    ...(opts.initial || {}),
-    ...getDeviceInfo(),
-    metrics: /** @type object[] */ ([]),
-  }
-
-  const mapMetric =
-    opts.mapMetric ||
-    function (m) {
-      return { name: m.name, value: m.value, id: m.id }
-    }
+  let isCalled = false
+  let result = /** @type {Result} */ ({ id: generateUniqueID(), ...opts.initial })
 
   const sendValues = () => {
     if (isSent) return // data is already sent
-    if (!result.metrics.length) return // no data collected
+    if (!isCalled) return // no data collected
     isSent = true
-    if (opts.beforeSend) opts.beforeSend()
     if (opts.onSend) {
       opts.onSend(url, result)
     } else {
@@ -43,11 +38,30 @@ export function createApiReporter(url, opts = {}) {
     }
   }
 
-  onHidden(sendValues, true)
+  const mapMetric =
+    opts.mapMetric ||
+    function (metric) {
+      const isWebVital = ['FCP', 'TTFB', 'LCP', 'CLS', 'FID'].indexOf(metric.name) !== -1
+      return { [metric.name]: isWebVital ? round(metric.value, metric.name === 'CLS' ? 4 : 0) : metric.value }
+    }
 
-  return function sendToAnalytics(metric) {
-    result.metrics.push(mapMetric(metric))
+  /** @param {Metric} metric */
+  const report = (metric) => {
+    if (!isCalled) isCalled = true
+    result = { ...result, ...mapMetric(metric, result) }
   }
+
+  // should be the last call to capture latest CLS
+  setTimeout(() => {
+    onHidden(({ isUnloading }) => {
+      if (isUnloading) {
+        report({ name: 'sessionDuration', value: now() })
+        sendValues()
+      }
+    })
+  })
+
+  return report
 }
 
 /**
@@ -56,21 +70,40 @@ export function createApiReporter(url, opts = {}) {
  * - Device memory: https://developer.mozilla.org/en-US/docs/Web/API/Navigator/deviceMemory
  */
 
-function getDeviceInfo() {
-  const loc = typeof location === 'undefined' ? null : location
-  const doc = typeof document === 'undefined' ? null : document
-  const nav = /** @type {null | (Navigator & { deviceMemory: number, connection: { effectiveType: 'slow-2g' | '2g' | '3g' | '4g', rtt: number, downlink: number } })} */ (typeof navigator ===
+export function getDeviceInfo() {
+  const nav = /** @type {null | (Navigator & { deviceMemory: number, connection: NetworkInformation })} */ (typeof navigator ===
   'undefined'
     ? null
     : navigator)
   const conn = nav && nav.connection ? nav.connection : null
-
   return {
-    url: loc ? loc.href : undefined,
-    referrer: doc ? doc.referrer : undefined,
-    userAgent: nav ? nav.userAgent : undefined,
-    memory: nav ? nav.deviceMemory : undefined,
-    cpus: nav ? nav.hardwareConcurrency : undefined,
+    url: location ? location.href : null,
+    referrer: document ? document.referrer : null,
+    userAgent: nav ? nav.userAgent : null,
+    memory: nav ? nav.deviceMemory : null,
+    cpus: nav ? nav.hardwareConcurrency : null,
     connection: conn ? { effectiveType: conn.effectiveType, rtt: conn.rtt, downlink: conn.downlink } : {},
   }
+}
+
+/**
+ * Get time since a session started.
+ */
+
+function now() {
+  const perf = typeof performance === 'undefined' ? null : performance
+  return perf && perf.now ? round(perf.now()) : null
+}
+
+/**
+ * Round, source: https://stackoverflow.com/a/18358056
+ *
+ * @param {number} val
+ * @param {number} [precision]
+ * @return {number}
+ */
+
+function round(val, precision = 0) {
+  // @ts-ignore
+  return +(Math.round(`${val}e+${precision}`) + `e-${precision}`)
 }

@@ -1,7 +1,7 @@
 {
   "name": "web-vitals-reporter",
-  "version": "0.2.0",
-  "description": "...",
+  "version": "0.1.0",
+  "description": "A tiny (800 B) utility to simplify web vitals reporting",
   "repository": "treosh/web-vitals-reporter",
   "bugs": "https://github.com/treosh/web-vitals-reporter/issues",
   "license": "MIT",
@@ -10,9 +10,6 @@
   "main": "src/index.js",
   "files": [
     "src"
-  ],
-  "keywords": [
-    "web vitals"
   ],
   "scripts": {
     "test": "prettier -c src README.md && tsc -p . && ava"
@@ -28,6 +25,25 @@
     "size-limit": "^4.5.0",
     "typescript": "^3.9.5"
   },
+  "keywords": [
+    "web vitals",
+    "api",
+    "metrics",
+    "FCP",
+    "LCP",
+    "FID",
+    "CLS",
+    "CrUX",
+    "chrome user experience report",
+    "web performance",
+    "time to first byte",
+    "first contentful paint",
+    "largest contentful paint",
+    "first input delay",
+    "cumulative layout shift",
+    "network connection",
+    "device memory"
+  ],
   "ava": {
     "require": [
       "esm"
@@ -38,7 +54,7 @@
   },
   "size-limit": [
     {
-      "limit": "650B",
+      "limit": "800B",
       "path": "./src/index.js"
     }
   ]
