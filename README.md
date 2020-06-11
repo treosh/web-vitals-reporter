@@ -2,13 +2,13 @@
 
 > A tiny (800 B) utility to simplify [web vitals](https://github.com/GoogleChrome/web-vitals) reporting.
 
-The [web-vitals](https://github.com/GoogleChrome/web-vitals) is a small and powerful library that helps to accurately measure [Web Vitals](https://web.dev/vitals/) (essential metrics for a healthy site). It has no opinion on how to report data from the field to analytics. The `web-vitals-reporter` makes collecting Web Vitals as simple, as sending one `POST` request.
+The [web-vitals](https://github.com/GoogleChrome/web-vitals) is a small and powerful library to accurately measure [Web Vitals](https://web.dev/vitals/). It has no opinion on how to report data from the browser to analytics. The `web-vitals-reporter` makes collecting Web Vitals as simple, as sending one `POST` request.
 
 **Features**:
 
-- Collect [web vitals](https://github.com/GoogleChrome/web-vitals) with one request per session.
+- Collect [Web Vitals](https://web.dev/vitals/) with one request per session.
 - Gather useful device information (dimensions).
-- Handle edge-cases for Web Vitals collection (multiple CLS calls, round values).
+- Handle edge-cases like multiple CLS calls, round values, and `sendBeacon` fallback.
 - Report custom front-end metrics.
 - Tiny (800 B), functional, and modular.
 
@@ -29,7 +29,7 @@ getFID(sendToAnalytics)
 getCLS(sendToAnalytics)
 ```
 
-Report all [Web Vitals](https://web.dev/vitals/) with an extended device information:
+Report [Web Vitals](https://web.dev/vitals/) with an extended device information:
 
 ```js
 import { getFCP, getTTFB, getCLS, getFID, getLCP } from 'web-vitals'
@@ -67,7 +67,7 @@ export function reportWebVitals(metric) {
   }
 }
 
-// or just:
+// or just, `report` supports custom metrics:
 export { report as reportWebVitals }
 ```
 
@@ -80,21 +80,33 @@ At the end of the session, it sends collected data to `url` using a POST request
 
 #### options.initial
 
-Use `initial` option to add extra context to a result object. By default `web-vitals-reporter` only adds `id` and session `duration`. It's possible to rewrite `id` with the `initial` object.
+Use `initial` to add extra context to the result object.
+By default `web-vitals-reporter` only adds `id` and session `duration`. It's possible to rewrite `id` with the `initial` object.
 
 ```js
+import { getFID } from 'web-vitals'
 import { createApiReporter, getDeviceInfo } from 'web-vitals-reporter'
 
 const report = createApiReporter('/analytics', {
-  initial: { ...getDeviceInfo(), id: 'custom-id' },
+  initial: { id: 'custom-id', cpus: getDeviceInfo().cpus },
 })
+
+getFID(report)
+
+// reported body:
+{
+  id: 'custom-id',
+  cpus: 8,
+  FID: 24,
+  duration: 4560 // session duration
+}
 ```
 
 #### options.onSend(url, result)
 
-By default `web-vitals-reporter` uses [`sendBeacon`](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/sendBeacon) and fallbacks to a `XMLHttpRequest`.
+By default `web-vitals-reporter` uses [`sendBeacon`](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/sendBeacon) and fallbacks to `XMLHttpRequest`.
 
-Use `onSend` option to implement a custom request logic, like logging data in development, or adding extra headers with `window.fetch`.
+Use `onSend` to implement a custom request logic, like logging data in development, or adding extra headers with `window.fetch`.
 
 ```js
 import { createApiReporter } from 'web-vitals-reporter'
@@ -107,7 +119,12 @@ const isLocalhost = location.origin.includes('localhost')
 
 // don't send results to API when a page tested with Lighthouse
 const report = createApiReporter('/analytics', {
-  onSend: isLighthouse || isLocalhost ? (url, result) => console.log(JSON.stringify(result, null, '  ')) : null,
+  onSend:
+    isLighthouse || isLocalhost
+      ? (url, result) => {
+          console.log(JSON.stringify(result, null, '  '))
+        }
+      : null,
 })
 ```
 
@@ -117,9 +134,9 @@ To see output in the console, set `Preserve log` option and refresh the page.
 
 #### options.mapMetric(metric, result)
 
-By default `web-vitals-reporter` only rounds `metric.value` for Web Vitals ([code](https://github.com/treosh/web-vitals-reporter/blob/master/src/index.js#L43)).
+By default `web-vitals-reporter` only rounds `metric.value` for known Web Vitals ([code](https://github.com/treosh/web-vitals-reporter/blob/master/src/index.js#L43)).
 
-Use `mapMetric` to implement a custom metric mapping, and capture detailed data. For example:
+Use `mapMetric` to implement a custom metric mapping. For example:
 
 ```js
 import { createApiReporter } from 'web-vitals-reporter'
@@ -170,7 +187,7 @@ getCLS(report)
 
 ### getDeviceInfo()
 
-It is a helper that returns device information like a connection type, memory size, or the number of CPU cores.
+It is a helper that returns device information (connection type, memory size, or the number of CPU cores).
 Use these data to add dimensions to your analytics.
 
 ```js
