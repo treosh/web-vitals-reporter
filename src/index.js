@@ -7,7 +7,7 @@ import { generateUniqueID } from 'web-vitals/dist/lib/generateUniqueID'
 
 /**
  * Create Web Vitals API reporter, that accepts `Metric` values and sends it to `url`
- * using `navigator.sendBeackon` when avaiable or fallbacks back to XMLHttpRequest.
+ * using `navigator.sendBeacon` when available or fallbacks back to XMLHttpRequest.
  *
  * The function sends request only once.
  * Use `onSend` to implement a custom logic.
