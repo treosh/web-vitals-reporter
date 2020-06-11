@@ -2,15 +2,15 @@
 
 > A tiny (800 B) utility to simplify [web vitals](https://github.com/GoogleChrome/web-vitals) reporting.
 
-The web-vitals library is small, flexible, and unopinated about reporting.
-Avoid multiple requests and collect some extra dimensions aboud each session.
+The [web-vitals](https://github.com/GoogleChrome/web-vitals) is a small and powerful library to accurately measure [Web Vitals](https://web.dev/vitals/) (essential metrics for a healthy site). It has no opinion on how to report data from the field to analytics. The `web-vitals-reporter` makes collecting Web Vitals as simple, as sending one `POST` request.
 
 **Features**:
 
-- Report [web vitals](https://github.com/GoogleChrome/web-vitals) with one request per session.
-- Collect useful device information.
-- Handles edge-cases for Web Vitals collection (like multiple CLS calls, and proper rounding).
-- Simple abstraction to collect and report any front-end metric.
+- Collect [web vitals](https://github.com/GoogleChrome/web-vitals) with one request per session.
+- Gather useful device information (dimensions).
+- Handle edge-cases for Web Vitals collection (multiple CLS calls, round values).
+- Report custom front-end metrics.
+- Tiny (800 B), functional, and modular.
 
 ## Usage
 
@@ -21,8 +21,7 @@ import { getLCP, getFID, getCLS } from 'web-vitals'
 import { createApiReporter } from 'web-vitals-reporter'
 
 // Create a report function that sends a POST request at the end of the session.
-// An example body: { id: '1591874424275-9122658877754', duration: 8357,
-//                    LCP: 1721, FID: 3, CLS: 0.0319 }
+// An example body: { id: '1591874424275-9122658877754', duration: 8357, LCP: 1721, FID: 3, CLS: 0.0319 }
 const sendToAnalytics = createApiReporter('/analytics')
 
 getLCP(sendToAnalytics)
@@ -49,18 +48,44 @@ getFID(sendToAnalytics)
 getCLS(sendToAnalytics)
 ```
 
+Measure [Web Vitals and custom metrics for Next.js application](https://nextjs.org/docs/advanced-features/measuring-performance):
+
+```js
+import { createApiReporter } from 'web-vitals-reporter'
+
+// init reporter
+const report = createApiReporter('/analytics')
+
+// export `reportWebVitals` custom function
+export function reportWebVitals(metric) {
+  if (metric.label === 'web-vitals') {
+    report(metric)
+  } else {
+    report({ name: metric.name, value: metric.value })
+  }
+}
+
+// or just:
+export { report as reportWebVitals }
+```
+
 ## API
 
 ### createApiReporter(url, [options])
 
-- CLS is final only on the tab close (tip on local debug)
+Create a report function, that accepts [Web Vitals' Metric](https://github.com/GoogleChrome/web-vitals#metric) (or any `{ name: string, value: number }` object),
+and sends collected data to `url` using a POST request.
+
+![web vitals reporter](https://user-images.githubusercontent.com/158189/84431070-f3604d00-ac2a-11ea-8a2d-055caa756302.png)
+
+<!-- - CLS is final only on the tab close (tip on local debug)
 - avoid Lighthouse
 - values are raw, you better collect rounded values (mapMetric)
-- report any metric
+- report any metric -->
 
 - **initial**
 
-- **mapMetric(metric, result)**
+Use initial option to provide an extra context for your data.
 
 - **onSend(url, result)**
 
@@ -75,6 +100,8 @@ const report = createApiReporter('/analytics', {
   onSend: isLighthouse ? (url, result) => console.log(result) : null,
 })
 ```
+
+- **mapMetric(metric, result)**
 
 ### getDeviceInfo()
 
