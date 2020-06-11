@@ -55,7 +55,7 @@ export function createApiReporter(url, opts = {}) {
   setTimeout(() => {
     onHidden(({ isUnloading }) => {
       if (isUnloading) {
-        report({ name: 'sessionDuration', value: now() })
+        report({ name: 'duration', value: now() })
         sendValues()
       }
     })
