@@ -12,15 +12,13 @@
     "src"
   ],
   "scripts": {
-    "test": "prettier -c src README.md && tsc -p . && ava"
+    "test": "prettier -c src README.md && tsc -p ."
   },
   "dependencies": {
     "web-vitals": "^0.2.2"
   },
   "devDependencies": {
     "@size-limit/preset-small-lib": "^4.5.0",
-    "ava": "^3.8.2",
-    "esm": "^3.2.25",
     "prettier": "^2.0.5",
     "size-limit": "^4.5.0",
     "typescript": "^3.9.5"
@@ -44,14 +42,6 @@
     "network connection",
     "device memory"
   ],
-  "ava": {
-    "require": [
-      "esm"
-    ],
-    "files": [
-      "test/*.js"
-    ]
-  },
   "size-limit": [
     {
       "limit": "800B",

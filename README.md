@@ -7,10 +7,10 @@ Avoid multiple requests and collect some extra dimensions aboud each session.
 
 **Features**:
 
-❶ Report [web vitals](https://github.com/GoogleChrome/web-vitals) with one request per session.
-❷ Collect useful device information.
-❹ Handles edge-cases for Web Vitals collection (like multiple CLS calls, and proper rounding).
-❸ Simple abstraction to collect and report any front-end metric.
+- Report [web vitals](https://github.com/GoogleChrome/web-vitals) with one request per session.
+- Collect useful device information.
+- Handles edge-cases for Web Vitals collection (like multiple CLS calls, and proper rounding).
+- Simple abstraction to collect and report any front-end metric.
 
 ## Usage
 
