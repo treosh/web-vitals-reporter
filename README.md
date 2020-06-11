@@ -17,37 +17,28 @@ The [web-vitals](https://github.com/GoogleChrome/web-vitals) is a small and powe
 Report [Core Web Vitals](https://web.dev/vitals/) to an API endpoint:
 
 ```js
-import { getLCP, getFID, getCLS } from 'web-vitals'
-import { createApiReporter } from 'web-vitals-reporter'
-
-// Create a report function that sends a POST request at the end of the session.
-// An example body: { id: '1591874424275-9122658877754', duration: 8357, LCP: 1721, FID: 3, CLS: 0.0319 }
-const sendToAnalytics = createApiReporter('/analytics')
-
-getLCP(sendToAnalytics)
-getFID(sendToAnalytics)
-getCLS(sendToAnalytics)
-```
-
-Report [Web Vitals](https://web.dev/vitals/) with an extended device information:
-
-```js
-import { getFCP, getTTFB, getCLS, getFID, getLCP } from 'web-vitals'
+import { getCLS, getFID, getLCP } from 'web-vitals'
 import { createApiReporter, getDeviceInfo } from 'web-vitals-reporter'
 
-// Init report callback and add information about a device.
-// An example body: { id: '1591874402350-8969370227936', duration: 19185, url: 'https://treo.sh/',
-//                    referrer: 'https://github.com/, userAgent: 'Mozilla/5.0 ...',
-//                    cpus: 8, memory: 8, connection: {rtt: 100, downlink: 5, effectiveType: '4g'},
-//                    TTFB: 253, FCP: 502, LCP: 1487, FID: 6, CLS: 1.5602 }
-
+// Init report callback with information about the browser.
 const sendToAnalytics = createApiReporter('/analytics', { initial: getDeviceInfo() })
 
-getTTFB(sendToAnalytics)
-getFCP(sendToAnalytics)
+// Setup web-vitals
 getLCP(sendToAnalytics)
 getFID(sendToAnalytics)
 getCLS(sendToAnalytics)
+
+// Receive `POST /analytics` at the end of the session:
+{
+  id: '1591874402350-8969370227936',
+  cpus: 8,
+  memory: 8,
+  connection: {rtt: 100, downlink: 5, effectiveType: '4g'},
+  LCP: 1487,
+  FID: 6,
+  CLS: 1.5602,
+  duration: 4560 // session duration
+}
 ```
 
 Measure performance for [Next.js application](https://nextjs.org/docs/advanced-features/measuring-performance):
