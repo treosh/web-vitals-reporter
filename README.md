@@ -2,7 +2,7 @@
 
 > A tiny (800 B) utility to simplify [web vitals](https://github.com/GoogleChrome/web-vitals) reporting.
 
-The [web-vitals](https://github.com/GoogleChrome/web-vitals) is a small and powerful library to accurately measure [Web Vitals](https://web.dev/vitals/) (essential metrics for a healthy site). It has no opinion on how to report data from the field to analytics. The `web-vitals-reporter` makes collecting Web Vitals as simple, as sending one `POST` request.
+The [web-vitals](https://github.com/GoogleChrome/web-vitals) is a small and powerful library that helps to accurately measure [Web Vitals](https://web.dev/vitals/) (essential metrics for a healthy site). It has no opinion on how to report data from the field to analytics. The `web-vitals-reporter` makes collecting Web Vitals as simple, as sending one `POST` request.
 
 **Features**:
 
@@ -36,9 +36,11 @@ import { getFCP, getTTFB, getCLS, getFID, getLCP } from 'web-vitals'
 import { createApiReporter, getDeviceInfo } from 'web-vitals-reporter'
 
 // Init report callback and add information about a device.
-// An example body: { id: '1591874402350-8969370227936', duration: 19185, url: 'https://treo.sh/', referrer: 'https://github.com/,
-//                    userAgent: 'Mozilla/5.0 ...', cpus: 8, memory: 8, connection: {rtt: 100, downlink: 5, effectiveType: '4g'},
+// An example body: { id: '1591874402350-8969370227936', duration: 19185, url: 'https://treo.sh/',
+//                    referrer: 'https://github.com/, userAgent: 'Mozilla/5.0 ...',
+//                    cpus: 8, memory: 8, connection: {rtt: 100, downlink: 5, effectiveType: '4g'},
 //                    TTFB: 253, FCP: 502, LCP: 1487, FID: 6, CLS: 1.5602 }
+
 const sendToAnalytics = createApiReporter('/analytics', { initial: getDeviceInfo() })
 
 getTTFB(sendToAnalytics)
@@ -48,7 +50,7 @@ getFID(sendToAnalytics)
 getCLS(sendToAnalytics)
 ```
 
-Measure [Web Vitals and custom metrics for Next.js application](https://nextjs.org/docs/advanced-features/measuring-performance):
+Measure performance for [Next.js application](https://nextjs.org/docs/advanced-features/measuring-performance):
 
 ```js
 import { createApiReporter } from 'web-vitals-reporter'
@@ -73,21 +75,26 @@ export { report as reportWebVitals }
 
 ### createApiReporter(url, [options])
 
-Create a report function, that accepts [Web Vitals' Metric](https://github.com/GoogleChrome/web-vitals#metric) (or any `{ name: string, value: number }` object),
-and sends collected data to `url` using a POST request.
+Create a report function, that accepts [Web Vitals' Metric](https://github.com/GoogleChrome/web-vitals#metric) or any `{ name: string, value: number }` object.
+At the end of the session, it sends collected data to `url` using a POST request.
 
-![web vitals reporter](https://user-images.githubusercontent.com/158189/84431070-f3604d00-ac2a-11ea-8a2d-055caa756302.png)
+#### options.initial
 
-<!-- - CLS is final only on the tab close (tip on local debug)
-- avoid Lighthouse
-- values are raw, you better collect rounded values (mapMetric)
-- report any metric -->
+Use `initial` option to add extra context to a result object. By default `web-vitals-reporter` only adds `id` and session `duration`. It's possible to rewrite `id` with the `initial` object.
 
-- **initial**
+```js
+import { createApiReporter, getDeviceInfo } from 'web-vitals-reporter'
 
-Use initial option to provide an extra context for your data.
+const report = createApiReporter('/analytics', {
+  initial: { ...getDeviceInfo(), id: 'custom-id' },
+})
+```
 
-- **onSend(url, result)**
+#### options.onSend(url, result)
+
+By default `web-vitals-reporter` uses [`sendBeacon`](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/sendBeacon) and fallbacks to a `XMLHttpRequest`.
+
+Use `onSend` option to implement a custom request logic, like logging data in development, or adding extra headers with `window.fetch`.
 
 ```js
 import { createApiReporter } from 'web-vitals-reporter'
@@ -95,13 +102,71 @@ import { createApiReporter } from 'web-vitals-reporter'
 // detect Lighthouse using an `userAgent`
 const isLighthouse = Boolean(navigator.userAgent.match('Chrome-Lighthouse'))
 
+// exclude `localhost`
+const isLocalhost = location.origin.includes('localhost')
+
 // don't send results to API when a page tested with Lighthouse
 const report = createApiReporter('/analytics', {
-  onSend: isLighthouse ? (url, result) => console.log(result) : null,
+  onSend: isLighthouse || isLocalhost ? (url, result) => console.log(JSON.stringify(result, null, '  ')) : null,
 })
 ```
 
-- **mapMetric(metric, result)**
+To see output in the console, set `Preserve log` option and refresh the page.
+
+![web vitals reporter](https://user-images.githubusercontent.com/158189/84431070-f3604d00-ac2a-11ea-8a2d-055caa756302.png)
+
+#### options.mapMetric(metric, result)
+
+By default `web-vitals-reporter` only rounds `metric.value` for Web Vitals ([code](https://github.com/treosh/web-vitals-reporter/blob/master/src/index.js#L43)).
+
+Use `mapMetric` to implement a custom metric mapping, and capture detailed data. For example:
+
+```js
+import { createApiReporter } from 'web-vitals-reporter'
+
+const report = createApiReporter('/analytics', {
+  mapMetric: (metric) => {
+    switch (metric.name) {
+      // capture LCP element and its size
+      case 'LCP': {
+        const entry = metric.entries[metric.entries.length - 1] // use the last
+        return {
+          largestContentfulPaint: metric.value,
+          largestContentfulElement: getCssSelector(entry.element), // custom helper
+          largestContentfulElementSize: entry.size,
+        }
+      }
+
+      // capture cumulative/largest/total layout shift
+      case 'CLS': {
+        return {
+          cumulativeLayoutShift: metric.value,
+          largestLayoutShift: Math.max(...metric.entries.map((e) => e.value)),
+          totalLayoutShifts: metric.entries.length,
+        }
+      }
+
+      // report more information about first input
+      case 'FID': {
+        const entry = metric.entries[0]
+        return {
+          firstInputDelay: metric.value,
+          firstInputName: entry.name,
+          firstInputTime: entry.startTime,
+        }
+      }
+
+      // default name –> value mapping
+      default:
+        return { [metric.name]: metric.value }
+    }
+  },
+})
+
+getLCP(report)
+getFID(report)
+getCLS(report)
+```
 
 ### getDeviceInfo()
 
