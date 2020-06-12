@@ -82,7 +82,7 @@ export function getDeviceInfo() {
     userAgent: nav ? nav.userAgent : null,
     memory: nav ? nav.deviceMemory : null,
     cpus: nav ? nav.hardwareConcurrency : null,
-    connection: conn ? { effectiveType: conn.effectiveType, rtt: conn.rtt, downlink: conn.downlink } : {},
+    connection: conn ? { effectiveType: conn.effectiveType, rtt: conn.rtt, downlink: conn.downlink } : null,
   }
 }
 
