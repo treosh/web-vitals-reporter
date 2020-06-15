@@ -17,7 +17,7 @@
   "scripts": {
     "build": "microbundle build --no-sourcemap --format=cjs && yarn build:tsc",
     "build:tsc": "tsc --declaration --noEmit false --outDir dist/ --allowJs src/index.js && rm dist/index.js && mv dist/index.d.ts dist/web-vitals-reporter.d.ts",
-    "test": "prettier -c src README.md && tsc -p .",
+    "test": "prettier -c src README.md && tsc -p . && size-limit && ava",
     "prepack": "yarn build"
   },
   "dependencies": {
@@ -25,7 +25,15 @@
   },
   "devDependencies": {
     "@size-limit/preset-small-lib": "^4.5.0",
+    "@types/express": "^4.17.6",
+    "@types/morgan": "^1.9.1",
+    "ava": "^3.9.0",
+    "body-parser": "^1.19.0",
+    "esm": "^3.2.25",
+    "express": "^4.17.1",
     "microbundle": "^0.12.0",
+    "morgan": "^1.10.0",
+    "playwright": "^1.1.1",
     "prettier": "^2.0.5",
     "size-limit": "^4.5.0",
     "typescript": "^3.9.5"
@@ -54,5 +62,13 @@
       "limit": "850B",
       "path": "./src/index.js"
     }
-  ]
+  ],
+  "ava": {
+    "require": [
+      "esm"
+    ],
+    "files": [
+      "test/index.js"
+    ]
+  }
 }

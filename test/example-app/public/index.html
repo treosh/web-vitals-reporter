@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Example App</title>
+    <style>
+      #img {
+        display: block;
+        margin: auto;
+        height: 128px;
+        width: 128px;
+        padding: 2rem;
+      }
+      #canvas {
+        display: block;
+        margin: 2rem auto;
+        width: 540px;
+        height: 540px;
+      }
+    </style>
+  </head>
+  <body>
+    <img id="img" src="/logo.svg" />
+    <canvas id="canvas"></canvas>
+
+    <script type="module">
+      import 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.2.0/dist/confetti.browser.js'
+      import { getLCP, getCLS, getFID } from './web-vitals/index.js'
+      import { createApiReporter, getDeviceInfo } from './web-vitals-reporter/index.js'
+
+      confetti.create(document.getElementById('canvas'), {
+        resize: true,
+        useWorker: true,
+      })({ particleCount: 200, spread: 200 })
+
+      // Init report callback with information about the browser.
+      const sendToAnalytics = createApiReporter('/analytics', { initial: getDeviceInfo() })
+
+      // Setup web-vitals
+      getLCP(sendToAnalytics)
+      getFID(sendToAnalytics)
+      getCLS(sendToAnalytics)
+    </script>
+  </body>
+</html>
