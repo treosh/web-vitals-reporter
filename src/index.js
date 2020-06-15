@@ -13,7 +13,7 @@ import { generateUniqueID } from 'web-vitals/dist/lib/generateUniqueID'
  * Use `onSend` to implement a custom logic.
  *
  * @param {string} url
- * @param {{ initial?: object, mapMetric?: (metric: Metric, result: Result) => object, onSend?: (url: string, result: Result) => any }} [opts]
+ * @param {{ initial?: object, mapMetric?: (metric: Metric, result: Result) => Result, beforeSend?: (result: Result) => Result, onSend?: (url: string, result: Result) => any }} [opts]
  * @return {(metric: Metric) => void}
  */
 
@@ -25,7 +25,11 @@ export function createApiReporter(url, opts = {}) {
   const sendValues = () => {
     if (isSent) return // data is already sent
     if (!isCalled) return // no data collected
-    report({ name: 'duration', value: now() })
+
+    result.duration = now()
+    if (opts.beforeSend) {
+      result = { ...result, ...opts.beforeSend(result) }
+    }
     isSent = true
     if (opts.onSend) {
       opts.onSend(url, result)
@@ -59,10 +63,8 @@ export function createApiReporter(url, opts = {}) {
     // Current solution: if LCP/CLS supported, use `onHidden` otherwise, use `pagehide` to fire the callback in the end.
     //
     // More details: https://github.com/treosh/web-vitals-reporter/issues/3
-    const isLatestVisibilityChangeSupported =
-      typeof PerformanceObserver !== 'undefined' &&
-      PerformanceObserver.supportedEntryTypes &&
-      PerformanceObserver.supportedEntryTypes.indexOf('layout-shift') !== -1
+    const supportedEntryTypes = (PerformanceObserver && PerformanceObserver.supportedEntryTypes) || []
+    const isLatestVisibilityChangeSupported = supportedEntryTypes.indexOf('layout-shift') !== -1
 
     if (isLatestVisibilityChangeSupported) {
       onHidden(({ isUnloading }) => {

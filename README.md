@@ -130,6 +130,7 @@ By default `web-vitals-reporter` only rounds `metric.value` for known Web Vitals
 Use `mapMetric` to implement a custom metric mapping. For example:
 
 ```js
+import { getCLS, getFID, getLCP } from 'web-vitals'
 import { createApiReporter } from 'web-vitals-reporter'
 
 const report = createApiReporter('/analytics', {
@@ -174,6 +175,46 @@ const report = createApiReporter('/analytics', {
 getLCP(report)
 getFID(report)
 getCLS(report)
+```
+
+#### options.beforeSend(result)
+
+Use `beforeSend` to modify the final result before it's sent to the server. _Note_: The method should be **synchronous** because it's fired at the end of the session when the tab is closed.
+
+Example, compute metric score to pass [Core Web Vitals thresholds](https://web.dev/vitals/#core-web-vitals):
+
+```js
+import { getCLS, getFID, getLCP } from 'web-vitals'
+import { createApiReporter } from 'web-vitals-reporter'
+
+const report = createApiReporter('/analytics', {
+  beforeSend: (result) => {
+    const { LCP, FID, CLS } = result
+    if (!LCP || !FID || !CLS) return // Core Web Vitals are not supported
+
+    // return extra attributes to merge into the final result
+    return {
+      LCPScore: LCP < 2500 ? 'good' : LCP < 4500 ? 'needs improvement' : 'poor'
+      FIDScore: FID < 100 ? 'good' : FID < 300 ? 'needs improvement' : 'poor'
+      CLSScore: CLS < 0.1 ? 'good' : CLS < 0.25 ? 'needs improvement' : 'poor'
+    }
+  },
+})
+
+getLCP(report)
+getFID(report)
+getCLS(report)
+
+// Receive `POST /analytics` at the end of the session with:
+{
+  id: '1591874402350-8969370227936',
+  LCP: 1487,
+  LCPScore: 'good',
+  FID: 106,
+  FIDScore: 'needs improvement'
+  CLS: 1.5602,
+  CLSScore: 'poor'
+}
 ```
 
 ### getDeviceInfo()

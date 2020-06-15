@@ -51,7 +51,7 @@
   ],
   "size-limit": [
     {
-      "limit": "800B",
+      "limit": "850B",
       "path": "./src/index.js"
     }
   ]
