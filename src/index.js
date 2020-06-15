@@ -13,7 +13,7 @@ import { generateUniqueID } from 'web-vitals/dist/lib/generateUniqueID'
  * Use `onSend` to implement a custom logic.
  *
  * @param {string} url
- * @param {{ initial?: object, mapMetric?: (metric: Metric, result: Result) => Result, beforeSend?: (result: Result) => Result, onSend?: (url: string, result: Result) => any }} [opts]
+ * @param {{ initial?: object, mapMetric?: (metric: Metric, result: Result) => Result, beforeSend?: (result: Result) => Result | void, onSend?: (url: string, result: Result) => any }} [opts]
  * @return {(metric: Metric) => void}
  */
 
@@ -28,7 +28,8 @@ export function createApiReporter(url, opts = {}) {
 
     result.duration = now()
     if (opts.beforeSend) {
-      result = { ...result, ...opts.beforeSend(result) }
+      const newResult = opts.beforeSend(result)
+      if (newResult) result = { ...result, ...newResult }
     }
     isSent = true
     if (opts.onSend) {
