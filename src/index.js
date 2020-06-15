@@ -13,7 +13,7 @@ import { generateUniqueID } from 'web-vitals/dist/lib/generateUniqueID'
  * Use `onSend` to implement a custom logic.
  *
  * @param {string} url
- * @param {{ initial?: object, mapMetric?: (metric: Metric, result: Result) => object, onSend?: (url: string, values: Result) => any }} [opts]
+ * @param {{ initial?: object, mapMetric?: (metric: Metric, result: Result) => object, onSend?: (url: string, result: Result) => any }} [opts]
  * @return {(metric: Metric) => void}
  */
 
@@ -25,6 +25,7 @@ export function createApiReporter(url, opts = {}) {
   const sendValues = () => {
     if (isSent) return // data is already sent
     if (!isCalled) return // no data collected
+    report({ name: 'duration', value: now() })
     isSent = true
     if (opts.onSend) {
       opts.onSend(url, result)
@@ -53,12 +54,23 @@ export function createApiReporter(url, opts = {}) {
 
   // should be the last call to capture latest CLS
   setTimeout(() => {
-    onHidden(({ isUnloading }) => {
-      if (isUnloading) {
-        report({ name: 'duration', value: now() })
-        sendValues()
-      }
-    })
+    // Safari does not fire "visibilitychange" on the tab close
+    // So we have 2 options: loose Safari data, or loose LCP/CLS that depends on "visibilitychange" logic.
+    // Current solution: if LCP/CLS supported, use `onHidden` otherwise, use `pagehide` to fire the callback in the end.
+    //
+    // More details: https://github.com/treosh/web-vitals-reporter/issues/3
+    const isLatestVisibilityChangeSupported =
+      typeof PerformanceObserver !== 'undefined' &&
+      PerformanceObserver.supportedEntryTypes &&
+      PerformanceObserver.supportedEntryTypes.indexOf('layout-shift') !== -1
+
+    if (isLatestVisibilityChangeSupported) {
+      onHidden(({ isUnloading }) => {
+        if (isUnloading) sendValues()
+      })
+    } else {
+      addEventListener('pagehide', sendValues, { capture: true, once: true })
+    }
   })
 
   return report
