@@ -1,6 +1,3 @@
-// setup a basic express server to capture analytics
-// usage: node -r esm test/example-app/server.js
-
 import express from 'express'
 import bodyParser from 'body-parser'
 import { join } from 'path'

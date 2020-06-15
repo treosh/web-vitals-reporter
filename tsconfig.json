@@ -10,5 +10,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "include": ["src", "test"]
+  "include": ["src", "test"],
+  "exclude": ["test/example-app/public"]
 }
