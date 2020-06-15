@@ -7,7 +7,6 @@ import { join } from 'path'
 const port = 5000
 const app = express()
 
-app.use(require('morgan')('tiny'))
 app.use(express.static(join(__dirname, 'public')))
 
 // collect analytics
@@ -15,13 +14,12 @@ app.use(express.static(join(__dirname, 'public')))
 let latestAnalytics = {}
 app.post('/analytics', bodyParser.text(), (req, res) => {
   latestAnalytics = JSON.parse(req.body)
-  console.log(latestAnalytics)
+  console.log('receive POST: %s', latestAnalytics)
   res.sendStatus(201)
 })
 
-export function getLatestAnalytics() {
-  return latestAnalytics
-}
+export const getLatestAnalytics = () => latestAnalytics
+export const resetAnalytics = () => (latestAnalytics = {})
 
 // listen
 
