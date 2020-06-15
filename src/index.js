@@ -95,9 +95,9 @@ export function getDeviceInfo() {
     url: location ? location.href : null,
     referrer: document ? document.referrer : null,
     userAgent: nav ? nav.userAgent : null,
-    memory: nav ? nav.deviceMemory : null,
-    cpus: nav ? nav.hardwareConcurrency : null,
-    connection: conn ? { effectiveType: conn.effectiveType, rtt: conn.rtt, downlink: conn.downlink } : null,
+    memory: nav ? nav.deviceMemory : undefined,
+    cpus: nav ? nav.hardwareConcurrency : undefined,
+    connection: conn ? { effectiveType: conn.effectiveType, rtt: conn.rtt, downlink: conn.downlink } : undefined,
   }
 }
 
