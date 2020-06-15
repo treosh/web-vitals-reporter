@@ -14,7 +14,7 @@ app.use(express.static(join(__dirname, 'public')))
 let latestAnalytics = {}
 app.post('/analytics', bodyParser.text(), (req, res) => {
   latestAnalytics = JSON.parse(req.body)
-  console.log('receive POST: %s', latestAnalytics)
+  console.log('receive POST: %s', JSON.stringify(latestAnalytics))
   res.sendStatus(201)
 })
 

@@ -65,7 +65,7 @@ test.serial('firefox', async (t) => {
   t.true(typeof result.FID === 'number' && result.FID >= 0)
 })
 
-test.serial('webkit', async (t) => {
+test.skip('webkit', async (t) => {
   const browser = await playwright.webkit.launch()
   const result = await getResult(browser)
   console.log(result)
@@ -89,28 +89,16 @@ test.serial('webkit', async (t) => {
 
 /** @param {import('playwright').Browser} browser */
 async function getResult(browser) {
-  console.log('run', browser.constructor.name)
   resetAnalytics()
-
   const context = await browser.newContext()
-  context.route('**', (route) => {
-    console.log(route.request().method(), route.request().url())
-    route.continue()
-  })
-
   const page = await context.newPage()
   page.on('console', console.log)
   await page.goto(url)
   await page.click('canvas')
   await page.waitForTimeout(1000)
   await page.close({ runBeforeUnload: true })
-
-  const result = await new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(getLatestAnalytics())
-    }, 2000)
-  })
+  await page.waitForTimeout(1000)
 
   await browser.close()
-  return result
+  return /** @type {any} */ (getLatestAnalytics())
 }

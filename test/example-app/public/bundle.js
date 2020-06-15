@@ -943,16 +943,11 @@ const $canvas = /** @type {HTMLCanvasElement} */ (document.getElementById('canva
 create($canvas, { resize: true })({ particleCount: 200, spread: 200 });
 
 // Init report callback with information about the browser.
-const sendToAnalytics = createApiReporter('/analytics', {
-  initial: getDeviceInfo(),
-  beforeSend(result) {
-    console.log('beforeSend', JSON.stringify(result));
-  },
-});
+const report = createApiReporter('/analytics', { initial: getDeviceInfo() });
 
 // setup web-vitals
-h(sendToAnalytics);
-m(sendToAnalytics);
-g(sendToAnalytics);
-v(sendToAnalytics);
-p(sendToAnalytics);
+h(report);
+m(report);
+g(report);
+v(report);
+p(report);

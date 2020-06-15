@@ -17,7 +17,7 @@
   "scripts": {
     "build": "microbundle build --no-sourcemap --format=cjs && yarn build:tsc",
     "build:tsc": "tsc --declaration --noEmit false --outDir dist/ --allowJs src/index.js && rm dist/index.js && mv dist/index.d.ts dist/web-vitals-reporter.d.ts",
-    "test": "prettier -c src README.md && tsc -p . && size-limit && ava",
+    "test": "prettier -c src README.md && tsc -p . && size-limit && ava -t",
     "prepack": "yarn build"
   },
   "dependencies": {

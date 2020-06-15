@@ -8,16 +8,11 @@ const $canvas = /** @type {HTMLCanvasElement} */ (document.getElementById('canva
 create($canvas, { resize: true })({ particleCount: 200, spread: 200 })
 
 // Init report callback with information about the browser.
-const sendToAnalytics = createApiReporter('/analytics', {
-  initial: getDeviceInfo(),
-  beforeSend(result) {
-    console.log('beforeSend', JSON.stringify(result))
-  },
-})
+const report = createApiReporter('/analytics', { initial: getDeviceInfo() })
 
 // setup web-vitals
-getTTFB(sendToAnalytics)
-getFCP(sendToAnalytics)
-getLCP(sendToAnalytics)
-getFID(sendToAnalytics)
-getCLS(sendToAnalytics)
+getTTFB(report)
+getFCP(report)
+getLCP(report)
+getFID(report)
+getCLS(report)
