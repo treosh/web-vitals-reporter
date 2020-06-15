@@ -1,6 +1,6 @@
 {
   "name": "web-vitals-reporter",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A tiny (800 B) utility to simplify web vitals reporting",
   "repository": "treosh/web-vitals-reporter",
   "bugs": "https://github.com/treosh/web-vitals-reporter/issues",
