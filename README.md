@@ -14,7 +14,7 @@ The [web-vitals](https://github.com/GoogleChrome/web-vitals) is a small and powe
 
 ## Usage
 
-Report [Core Web Vitals](https://web.dev/vitals/) and device information to an API endpoint:
+① Report [Core Web Vitals](https://web.dev/vitals/) and device information to an API endpoint:
 
 ```js
 import { getCLS, getFID, getLCP } from 'web-vitals'
@@ -41,7 +41,7 @@ getCLS(sendToAnalytics)
 }
 ```
 
-Measure performance with [Next.js](https://nextjs.org/docs/advanced-features/measuring-performance):
+② Measure performance with [Next.js](https://nextjs.org/docs/advanced-features/measuring-performance):
 
 ```js
 import { createApiReporter } from 'web-vitals-reporter'
@@ -60,6 +60,21 @@ export function reportWebVitals(metric) {
 
 // or just, `report` supports custom metrics:
 export { report as reportWebVitals }
+```
+
+③ Load and report Web Vitals using a `<script>` tag:
+
+```html
+<script defer src="https://unpkg.com/web-vitals"></script>
+<script defer src="https://unpkg.com/web-vitals-reporter"></script>
+<script>
+  addEventListener('DOMContentLoaded', function () {
+    var sendToAnalytics = webVitalsReporter.createApiReporter('/analytics')
+    webVitals.getCLS(sendToAnalytics)
+    webVitals.getFID(sendToAnalytics)
+    webVitals.getLCP(sendToAnalytics)
+  })
+</script>
 ```
 
 ## API
