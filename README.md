@@ -1,20 +1,20 @@
 # web-vitals-reporter
 
-> A tiny (800 bytes) library, that makes collecting [Web Vitals](https://github.com/GoogleChrome/web-vitals) as simple, as sending one `POST` request.
+> Report [Web Vitals](https://web.dev/vitals/) to your API with one POST request per session.
 
-[Web-vitals](https://github.com/GoogleChrome/web-vitals) is a small and powerful library from Google Chrome team that accurately measures [Web Vitals](https://web.dev/vitals/). It has no opinion on how to report data from the browser to analytics.
+The [web-vitals](https://github.com/GoogleChrome/web-vitals) is a small and powerful library that accurately measures [Web Vitals](https://web.dev/vitals/). It has no opinion on how to report data from a browser to your analytics. It results in multiple API calls, session tracking, and lost metrics. The `web-vitals-reporter` makes [Web Vitals](https://github.com/GoogleChrome/web-vitals) reporting as simple as sending one `POST` request.
 
 **Features**:
 
-- Collect [Web Vitals](https://web.dev/vitals/) with one request per session;
-- Associate a useful device information, like number of `cpus`, memory size, and connection type;
+- Report [Web Vitals](https://web.dev/vitals/) with one request per session;
+- Associate useful device information like the number of `cpus`, `memory` size, and `connection` type;
+- Report custom front end metrics;
 - Handle edge-cases like multiple CLS calls, round values, and `sendBeacon` fallback;
-- Report custom front-end metrics;
-- It's tiny (800 bytes), functional, and modular.
+- It's a tiny (800 bytes) library without external dependencies.
 
 ## Usage
 
-Report [Core Web Vitals](https://web.dev/vitals/) to an API endpoint:
+Report [Core Web Vitals](https://web.dev/vitals/) and device information to an API endpoint:
 
 ```js
 import { getCLS, getFID, getLCP } from 'web-vitals'
@@ -41,7 +41,7 @@ getCLS(sendToAnalytics)
 }
 ```
 
-Measure performance for [Next.js application](https://nextjs.org/docs/advanced-features/measuring-performance):
+Measure performance with [Next.js](https://nextjs.org/docs/advanced-features/measuring-performance):
 
 ```js
 import { createApiReporter } from 'web-vitals-reporter'
@@ -66,8 +66,10 @@ export { report as reportWebVitals }
 
 ### createApiReporter(url, [options])
 
-Create a report function, that accepts [Web Vitals' Metric](https://github.com/GoogleChrome/web-vitals#metric) or any `{ name: string, value: number }` object.
-At the end of the session, it sends collected data to `url` using a POST request.
+Create a report function that accepts [Web Vitals' Metric](https://github.com/GoogleChrome/web-vitals#metric) object.
+At the end of the session, it sends collected data to the `url` using a POST request.
+
+It accepts any `{ name: string, value: number }` object, making it a useful tool for reporting any metric to the API using the one-request-per-session pattern.
 
 #### options.initial
 
