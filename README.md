@@ -2,11 +2,11 @@
 
 > Report [Web Vitals](https://web.dev/vitals/) to your API with one POST request per session.
 
-The [web-vitals](https://github.com/GoogleChrome/web-vitals) is a small and powerful library that accurately measures [Web Vitals](https://web.dev/vitals/). It has no opinion on how to report data from a browser to your analytics. It results in multiple API calls, session tracking, and lost metrics. The `web-vitals-reporter` makes [Web Vitals](https://github.com/GoogleChrome/web-vitals) reporting as simple as sending one `POST` request.
+The [web-vitals](https://github.com/GoogleChrome/web-vitals) library is excellent at accurately measuring [Web Vitals](https://web.dev/vitals/). But it has no opinion on how to report metrics from a browser to your analytics. It may result in multiple API calls, session tracking, and lost metrics. The `web-vitals-reporter` makes [Web Vitals](https://github.com/GoogleChrome/web-vitals) collecting as simple as sending one `POST` request.
 
 **Features**:
 
-- Report [Web Vitals](https://web.dev/vitals/) with one request per session;
+- Report [Web Vitals](https://web.dev/vitals/) with one request per session (no tracking);
 - Associate useful device information like the number of `cpus`, `memory` size, and `connection` type;
 - Report custom front end metrics;
 - Handle edge-cases like multiple CLS calls, round values, and `sendBeacon` fallback;
