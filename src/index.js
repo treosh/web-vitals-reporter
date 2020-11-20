@@ -1,9 +1,17 @@
-import { onHidden } from 'web-vitals/dist/lib/onHidden'
-import { generateUniqueID } from 'web-vitals/dist/lib/generateUniqueID'
+import { onHidden } from 'web-vitals/dist/modules/lib/onHidden'
+import { generateUniqueID } from 'web-vitals/dist/modules/lib/generateUniqueID'
 
-/** @typedef {Object<string,any>} Result */
-/** @typedef {import('web-vitals').Metric | Object<string,any>} Metric */
-/** @typedef {{ effectiveType: 'slow-2g' | '2g' | '3g' | '4g', rtt: number, downlink: number }} NetworkInformation */
+/**
+ * @typedef {Object<string,any>} Result
+ * @typedef {import('web-vitals').Metric | Object<string,any>} Metric
+ * @typedef {{ effectiveType: 'slow-2g' | '2g' | '3g' | '4g', rtt: number, downlink: number }} NetworkInformation
+ *
+ * @typedef {object} CreateApiReporterOptions
+ * @prop {object} [initial]
+ * @prop {(metric: Metric, result: Result) => Result} [mapMetric]
+ * @prop {(result: Result) => Result | void} [beforeSend]
+ * @prop {(url: string, result: Result) => any} [onSend]
+ */
 
 /**
  * Create Web Vitals API reporter, that accepts `Metric` values and sends it to `url`
@@ -13,7 +21,7 @@ import { generateUniqueID } from 'web-vitals/dist/lib/generateUniqueID'
  * Use `onSend` to implement a custom logic.
  *
  * @param {string} url
- * @param {{ initial?: object, mapMetric?: (metric: Metric, result: Result) => Result, beforeSend?: (result: Result) => Result | void, onSend?: (url: string, result: Result) => any }} [opts]
+ * @param {CreateApiReporterOptions} [opts]
  * @return {(metric: Metric) => void}
  */
 
@@ -68,8 +76,8 @@ export function createApiReporter(url, opts = {}) {
     const isLatestVisibilityChangeSupported = supportedEntryTypes.indexOf('layout-shift') !== -1
 
     if (isLatestVisibilityChangeSupported) {
-      onHidden(({ isUnloading }) => {
-        if (isUnloading) sendValues()
+      onHidden(() => {
+        sendValues()
       })
     } else {
       addEventListener('pagehide', sendValues, { capture: true, once: true })
