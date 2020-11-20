@@ -1,6 +1,3 @@
-import { onHidden } from 'web-vitals/dist/modules/lib/onHidden'
-import { generateUniqueID } from 'web-vitals/dist/modules/lib/generateUniqueID'
-
 /**
  * @typedef {Object<string,any>} Result
  * @typedef {import('web-vitals').Metric | Object<string,any>} Metric
@@ -28,7 +25,7 @@ import { generateUniqueID } from 'web-vitals/dist/modules/lib/generateUniqueID'
 export function createApiReporter(url, opts = {}) {
   let isSent = false
   let isCalled = false
-  let result = /** @type {Result} */ ({ id: generateUniqueID(), ...opts.initial })
+  let result = /** @type {Result} */ ({ id: generateUniqueId(), ...opts.initial })
 
   const sendValues = () => {
     if (isSent) return // data is already sent
@@ -76,9 +73,13 @@ export function createApiReporter(url, opts = {}) {
     const isLatestVisibilityChangeSupported = supportedEntryTypes.indexOf('layout-shift') !== -1
 
     if (isLatestVisibilityChangeSupported) {
-      onHidden(() => {
-        sendValues()
-      })
+      const onVisibilityChange = () => {
+        if (document.visibilityState === 'hidden') {
+          sendValues()
+          removeEventListener('visibilitychange', onVisibilityChange, true)
+        }
+      }
+      addEventListener('visibilitychange', onVisibilityChange, true)
     } else {
       addEventListener('pagehide', sendValues, { capture: true, once: true })
     }
@@ -129,4 +130,13 @@ function now() {
 function round(val, precision = 0) {
   // @ts-ignore
   return +(Math.round(`${val}e+${precision}`) + `e-${precision}`)
+}
+
+/**
+ * Generate a unique id, copied from:
+ * https://github.com/GoogleChrome/web-vitals/blob/master/src/lib/generateUniqueID.ts
+ */
+
+function generateUniqueId() {
+  return `v1-${Date.now()}-${Math.floor(Math.random() * (9e12 - 1)) + 1e12}`
 }
