@@ -1,7 +1,7 @@
 {
   "name": "web-vitals-reporter",
-  "version": "0.2.0",
-  "description": "A tiny (800 B) utility to simplify web vitals reporting",
+  "version": "1.0.0",
+  "description": "Report Web Vitals to your API with one POST request per session",
   "repository": "treosh/web-vitals-reporter",
   "bugs": "https://github.com/treosh/web-vitals-reporter/issues",
   "license": "MIT",
