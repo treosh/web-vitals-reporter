@@ -8,14 +8,15 @@
   "sideEffects": false,
   "source": "src/index.js",
   "module": "src/index.js",
-  "types": "dist/web-vitals-reporter.d.ts",
   "main": "dist/web-vitals-reporter.js",
+  "types": "dist/web-vitals-reporter.d.ts",
+  "unpkg": "dist/web-vitals-reporter.umd.js",
   "files": [
     "dist",
     "src"
   ],
   "scripts": {
-    "build": "microbundle build --no-sourcemap --format=cjs && yarn build:tsc",
+    "build": "rm -rf dist && microbundle build --no-sourcemap --format=cjs,umd && yarn build:tsc",
     "build:tsc": "tsc --declaration --noEmit false --outDir dist/ --allowJs src/index.js && rm dist/index.js && mv dist/index.d.ts dist/web-vitals-reporter.d.ts",
     "test": "prettier -c src README.md && tsc -p . && size-limit && ava -t",
     "prepack": "yarn build"

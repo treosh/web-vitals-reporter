@@ -1,16 +1,16 @@
 # web-vitals-reporter
 
-> A tiny (800 B) utility to simplify [web vitals](https://github.com/GoogleChrome/web-vitals) reporting.
+> A tiny (800 bytes) library, that makes collecting [Web Vitals](https://github.com/GoogleChrome/web-vitals) as simple, as sending one `POST` request.
 
-The [web-vitals](https://github.com/GoogleChrome/web-vitals) is a small and powerful library to accurately measure [Web Vitals](https://web.dev/vitals/). It has no opinion on how to report data from the browser to analytics. The `web-vitals-reporter` makes collecting Web Vitals as simple, as sending one `POST` request.
+[Web-vitals](https://github.com/GoogleChrome/web-vitals) is a small and powerful library from Google Chrome team that accurately measures [Web Vitals](https://web.dev/vitals/). It has no opinion on how to report data from the browser to analytics.
 
 **Features**:
 
-- Collect [Web Vitals](https://web.dev/vitals/) with one request per session.
-- Gather useful device information (dimensions).
-- Handle edge-cases like multiple CLS calls, round values, and `sendBeacon` fallback.
-- Report custom front-end metrics.
-- Tiny (800 B), functional, and modular.
+- Collect [Web Vitals](https://web.dev/vitals/) with one request per session;
+- Associate a useful device information, like number of `cpus`, memory size, and connection type;
+- Handle edge-cases like multiple CLS calls, round values, and `sendBeacon` fallback;
+- Report custom front-end metrics;
+- It's tiny (800 bytes), functional, and modular.
 
 ## Usage
 
@@ -219,7 +219,7 @@ getCLS(report)
 
 ### getDeviceInfo()
 
-It is a helper that returns device information (connection type, memory size, or the number of CPU cores).
+A helper that returns device information (connection type, memory size, or the number of CPU cores).
 Use these data to add dimensions to your analytics.
 
 ```js
